@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""
+Generate docs/resources.md and kits.json from src/<kitId>/metadata.json
+and resource files under each kit folder.
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+KITS_JSON = REPO_ROOT / "kits.json"
+SRC_DIR = REPO_ROOT / "src"
+OUT_MD = REPO_ROOT / "docs" / "resources.md"
+METADATA_FILENAME = "metadata.json"
+
+IGNORED_RESOURCE_NAMES = frozenset(
+    {
+        "readme.md",
+        "README.md",
+        "metadata.json",
+        "Thumbs.db",
+        ".DS_Store",
+    }
+)
+
+
+def die(msg: str) -> None:
+    print(msg, file=sys.stderr)
+    raise SystemExit(1)
+
+
+def md_escape_link_text(text: str) -> str:
+    """Escape characters that break common markdown link text parsing."""
+    return text.replace("\\", "\\\\").replace("[", "\\[").replace("]", "\\]")
+
+
+def md_escape_heading_text(text: str) -> str:
+    return text.replace("\n", " ").strip()
+
+
+def is_safe_relative_filename(name: str) -> bool:
+    if not name or name.startswith("."):
+        return False
+    if ".." in Path(name).parts:
+        return False
+    return True
+
+
+def list_resource_files(kit_dir: Path) -> list[Path]:
+    files: list[Path] = []
+    for p in sorted(kit_dir.iterdir(), key=lambda x: x.name.lower()):
+        if not p.is_file():
+            continue
+        if p.name in IGNORED_RESOURCE_NAMES or p.name.startswith("."):
+            continue
+        if not is_safe_relative_filename(p.name):
+            die(f"Unsafe resource filename under {kit_dir}: {p.name!r}")
+        files.append(p)
+    return files
+
+
+def load_metadata(kit_dir: Path, folder_kit_id: str) -> dict:
+    meta_path = kit_dir / METADATA_FILENAME
+    if not meta_path.is_file():
+        die(f"Missing {meta_path} (each kit folder must have {METADATA_FILENAME})")
+    try:
+        data = json.loads(meta_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as e:
+        die(f"Invalid JSON in {meta_path}: {e}")
+    if not isinstance(data, dict):
+        die(f"{meta_path} must be a JSON object")
+    return data
+
+
+def validate_and_normalize_kit_row(row: dict, folder_kit_id: str, meta_path: Path) -> dict:
+    if not isinstance(row, dict):
+        die(f"{meta_path} root must be an object")
+    raw_kit_id = row.get("kitId")
+    if raw_kit_id is not None:
+        stated = str(raw_kit_id).strip()
+        if stated and stated != folder_kit_id:
+            die(
+                f"{meta_path}: omit `kitId` (it is inferred from the folder name). "
+                f"Found kitId {stated!r} but folder is {folder_kit_id!r}."
+            )
+    try:
+        name = str(row["name"]).strip()
+        manufacturer = str(row.get("manufacturer", "") or "").strip()
+        link = row.get("link")
+        notes = row.get("notes")
+    except KeyError as e:
+        die(f"{meta_path} missing required field: {e.args[0]}")
+    if not name:
+        die(f"{meta_path} has empty name")
+    if not is_safe_relative_filename(folder_kit_id):
+        die(f"{meta_path}: unsafe folder / inferred kitId {folder_kit_id!r}")
+    link_str = str(link).strip() if link is not None else ""
+    notes_str = str(notes).strip() if notes is not None else ""
+    return {
+        "kitId": folder_kit_id,
+        "name": name,
+        "manufacturer": manufacturer,
+        "link": link_str,
+        "notes": notes_str,
+    }
+
+
+def load_all_kits_from_src() -> list[dict]:
+    if not SRC_DIR.is_dir():
+        return []
+    kits: list[dict] = []
+    for p in sorted(SRC_DIR.iterdir(), key=lambda x: x.name.lower()):
+        if not p.is_dir() or p.name.startswith("."):
+            continue
+        if not is_safe_relative_filename(p.name):
+            die(f"Unsafe directory name under src: {p.name!r}")
+        folder_id = p.name
+        raw = load_metadata(p, folder_id)
+        kits.append(validate_and_normalize_kit_row(raw, folder_id, p / METADATA_FILENAME))
+    return kits
+
+
+def sort_for_compiled_json(kits: list[dict]) -> list[dict]:
+    """Stable order for kits.json: manufacturer, name, kitId (case-insensitive)."""
+    return sorted(
+        kits,
+        key=lambda k: (
+            (k["manufacturer"] or "Unknown").lower(),
+            k["name"].lower(),
+            k["kitId"].lower(),
+        ),
+    )
+
+
+def write_kits_json(kits: list[dict]) -> None:
+    payload = {"kits": sort_for_compiled_json(kits)}
+    text = json.dumps(payload, indent=2, ensure_ascii=False) + "\n"
+    KITS_JSON.write_text(text, encoding="utf-8", newline="\n")
+
+
+def manufacturer_key(m: str) -> tuple:
+    """Sort real manufacturers first (A–Z), Unknown last."""
+    label = m if m else "Unknown"
+    unknown = label == "Unknown"
+    return (1 if unknown else 0, label.lower())
+
+
+def render_markdown(kits: list[dict]) -> str:
+    lines: list[str] = [
+        "<!-- This file is generated by scripts/generate_resources.py. Do not edit by hand. -->",
+        "",
+        "> **Generated file** — Do not edit by hand. Run `python3 scripts/generate_resources.py` locally, "
+        "or push to `main` and let CI refresh this page.",
+        "",
+        "# Kit resources",
+        "",
+        "Scanned stickers, paper sheets, and related files from book nook kits. "
+        "Per-kit metadata lives in `src/<kitId>/metadata.json`. "
+        "The root [`kits.json`](../kits.json) file is a compiled merge of those files for tooling.",
+        "",
+    ]
+
+    by_mfr: dict[str, list[dict]] = defaultdict(list)
+    for k in kits:
+        mfr = k["manufacturer"] if k["manufacturer"] else "Unknown"
+        by_mfr[mfr].append(k)
+
+    for mfr in sorted(by_mfr.keys(), key=manufacturer_key):
+        lines.append(f"## {md_escape_heading_text(mfr)}")
+        lines.append("")
+        kits_here = sorted(by_mfr[mfr], key=lambda x: x["name"].lower())
+        for kit in kits_here:
+            kid = kit["kitId"]
+            lines.append(f"### {md_escape_heading_text(kit['name'])}")
+            lines.append("")
+            lines.append(
+                f"- **Kit metadata:** [`metadata.json`](../src/{kid}/metadata.json)"
+            )
+            lines.append(f"- **Kit readme:** [{md_escape_link_text('README.md')}](../src/{kid}/README.md)")
+            if kit["link"]:
+                lines.append(
+                    f"- **Product / reference:** [Open product page]({kit['link']})"
+                )
+            if kit["notes"]:
+                lines.append(f"- **Notes:** {kit['notes']}")
+            resources = list_resource_files(SRC_DIR / kid)
+            lines.append("- **Resources:**")
+            if not resources:
+                lines.append("  - _(no resource files yet)_")
+            else:
+                for f in resources:
+                    rel = f"../src/{kid}/{f.name}"
+                    lines.append(f"  - [{md_escape_link_text(f.name)}]({rel})")
+            lines.append("")
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def main() -> None:
+    kits = load_all_kits_from_src()
+    OUT_MD.parent.mkdir(parents=True, exist_ok=True)
+    write_kits_json(kits)
+    OUT_MD.write_text(render_markdown(kits), encoding="utf-8", newline="\n")
+    print(f"Wrote {KITS_JSON}")
+    print(f"Wrote {OUT_MD}")
+
+
+if __name__ == "__main__":
+    main()

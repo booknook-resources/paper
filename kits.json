@@ -1,0 +1,11 @@
+{
+  "kits": [
+    {
+      "kitId": "example-kit",
+      "name": "Example book nook kit",
+      "manufacturer": "Example Maker",
+      "link": "https://example.com/product/example-kit",
+      "notes": "Replace this kit with real data. The kit id in kits.json is the src/ folder name, not this file."
+    }
+  ]
+}
