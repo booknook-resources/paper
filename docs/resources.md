@@ -6,6 +6,17 @@
 
 Scanned stickers, paper sheets, and related files from book nook kits. Per-kit metadata lives in `src/<kitId>/metadata.json`. The root [`kits.json`](../kits.json) file is a compiled merge of those files for tooling.
 
+## BookNook Global
+
+### Ginzan Onsen
+
+- **Kit metadata:** [`metadata.json`](../src/booknookworld-ginzan-onsen/metadata.json)
+- **Kit readme:** [README.md](../src/booknookworld-ginzan-onsen/README.md)
+- **Product / reference:** [Open product page](https://www.booknookglobal.com/products/book-nook-ginzan-onsen-diy-kit-bn005)
+- **Notes:** Ginzan Onsen is a cozy inn in the mountains of Japan, where you can relax and read a book.
+- **Resources:**
+  - [cuộn giấy Ginzan.png](../src/booknookworld-ginzan-onsen/cuộn giấy Ginzan.png)
+
 ## Example Maker
 
 ### Example book nook kit

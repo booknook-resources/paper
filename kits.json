@@ -1,6 +1,13 @@
 {
   "kits": [
     {
+      "kitId": "booknookworld-ginzan-onsen",
+      "name": "Ginzan Onsen",
+      "manufacturer": "BookNook Global",
+      "link": "https://www.booknookglobal.com/products/book-nook-ginzan-onsen-diy-kit-bn005",
+      "notes": "Ginzan Onsen is a cozy inn in the mountains of Japan, where you can relax and read a book."
+    },
+    {
       "kitId": "example-kit",
       "name": "Example book nook kit",
       "manufacturer": "Example Maker",
