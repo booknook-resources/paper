@@ -6,6 +6,16 @@
 
 Scanned stickers, paper sheets, and related files from book nook kits. Per-kit metadata lives in `src/<kitId>/metadata.json`. The root [`kits.json`](../kits.json) file is a compiled merge of those files for tooling.
 
+## Anavarin
+
+### Eternal Midnight Paris
+
+- **Kit metadata:** [`metadata.json`](../src/eternal-midnight-paris/metadata.json)
+- **Kit readme:** [README.md](../src/eternal-midnight-paris/README.md)
+- **Product / reference:** [Open product page](https://byanavrin.com/products/eternal-midnight-paris-book-nook-kit)
+- **Resources:**
+  - [Eternal Midnight Paris - D.jpg](../src/eternal-midnight-paris/Eternal Midnight Paris - D.jpg)
+
 ## BookNook Global
 
 ### Ginzan Onsen
@@ -27,3 +37,37 @@ Scanned stickers, paper sheets, and related files from book nook kits. Per-kit m
 - **Notes:** Replace this kit with real data. The kit id in kits.json is the src/ folder name, not this file.
 - **Resources:**
   - _(no resource files yet)_
+
+## IQMax
+
+### Headmasters Office
+
+- **Kit metadata:** [`metadata.json`](../src/iqmax-headmasters-office/metadata.json)
+- **Kit readme:** [README.md](../src/iqmax-headmasters-office/README.md)
+- **Resources:**
+  - [Document_2026-02-23_171430.jpg](../src/iqmax-headmasters-office/Document_2026-02-23_171430.jpg)
+  - [Document_2026-02-23_172238.jpg](../src/iqmax-headmasters-office/Document_2026-02-23_172238.jpg)
+  - [Document_2026-02-23_172912.jpg](../src/iqmax-headmasters-office/Document_2026-02-23_172912.jpg)
+  - [Document_2026-02-23_173609.jpg](../src/iqmax-headmasters-office/Document_2026-02-23_173609.jpg)
+  - [Document_2026-02-23_174827.jpg](../src/iqmax-headmasters-office/Document_2026-02-23_174827.jpg)
+  - [Photo_2026-02-23_174123.jpg](../src/iqmax-headmasters-office/Photo_2026-02-23_174123.jpg)
+
+## MiniAlley
+
+### Dreamy Minialley
+
+- **Kit metadata:** [`metadata.json`](../src/dreamy-minialley/metadata.json)
+- **Kit readme:** [README.md](../src/dreamy-minialley/README.md)
+- **Product / reference:** [Open product page](https://minialley.com/products/dreamy-minialley)
+- **Resources:**
+  - [Dreamy Mini Alley.jpeg](../src/dreamy-minialley/Dreamy Mini Alley.jpeg)
+
+## Unknown
+
+### Dreamy Book Hall
+
+- **Kit metadata:** [`metadata.json`](../src/dreamy-book-hall/metadata.json)
+- **Kit readme:** [README.md](../src/dreamy-book-hall/README.md)
+- **Resources:**
+  - [Dreamy Book Hall Q.jpg](../src/dreamy-book-hall/Dreamy Book Hall Q.jpg)
+  - [Dreamy Book Hall Q2.jpg](../src/dreamy-book-hall/Dreamy Book Hall Q2.jpg)

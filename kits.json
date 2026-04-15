@@ -1,6 +1,13 @@
 {
   "kits": [
     {
+      "kitId": "eternal-midnight-paris",
+      "name": "Eternal Midnight Paris",
+      "manufacturer": "Anavarin",
+      "link": "https://byanavrin.com/products/eternal-midnight-paris-book-nook-kit",
+      "notes": ""
+    },
+    {
       "kitId": "booknookworld-ginzan-onsen",
       "name": "Ginzan Onsen",
       "manufacturer": "BookNook Global",
@@ -13,6 +20,27 @@
       "manufacturer": "Example Maker",
       "link": "https://example.com/product/example-kit",
       "notes": "Replace this kit with real data. The kit id in kits.json is the src/ folder name, not this file."
+    },
+    {
+      "kitId": "iqmax-headmasters-office",
+      "name": "Headmasters Office",
+      "manufacturer": "IQMax",
+      "link": "",
+      "notes": ""
+    },
+    {
+      "kitId": "dreamy-minialley",
+      "name": "Dreamy Minialley",
+      "manufacturer": "MiniAlley",
+      "link": "https://minialley.com/products/dreamy-minialley",
+      "notes": ""
+    },
+    {
+      "kitId": "dreamy-book-hall",
+      "name": "Dreamy Book Hall",
+      "manufacturer": "",
+      "link": "",
+      "notes": ""
     }
   ]
 }
